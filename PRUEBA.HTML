@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Consulta DNI</title>
+</head>
+<body>
+  <h2>Consulta por DNI</h2>
+
+<input type="text" id="dni" placeholder="Ingrese DNI">
+<input type="text" id="codigo" placeholder="Ingrese código">
+<button onclick="buscar()">Buscar</button>
+
+  <!-- CAMBIO: pre → div -->
+  <div id="resultado"></div>
+
+ <script>
+  function buscar() {
+    const dni = document.getElementById("dni").value.trim();
+    const codigo = document.getElementById("codigo").value.trim();
+
+    if (!dni || !codigo) {
+      document.getElementById("resultado").innerText =
+        "Debe ingresar DNI y código";
+      return;
+    }
+
+    const url =
+      "https://script.google.com/macros/s/AKfycbxc-QgTTWR-zH2qk3KfbNI6HGD-fzx8SuXgImSYCR3AS5XY2911srX3NTrLvsOd7jCL/exec" +
+      "?dni=" + encodeURIComponent(dni) +
+      "&codigo=" + encodeURIComponent(codigo);
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const resultado = document.getElementById("resultado");
+
+        if (data.error) {
+          resultado.innerText = data.error;
+        } else {
+          resultado.innerHTML =
+            "<p><strong>Nombre:</strong> " + data.nombre + "</p>" +
+            "<p><strong>Apellido:</strong> " + data.apellido + "</p>" +
+            "<p><strong>Empresa:</strong> " + data.empresa + "</p>" +
+            "<p><strong>DESCARGAR:</strong> " +
+            "<a href='" + data.descargar + "' target='_blank'>Descargar</a></p>" +
+            "<p><strong>FOTO:</strong></p>" +
+            "<img src='" + data.foto + "' width='200'>";
+        }
+      });
+  }
+</script>
+</body>
+</html>
