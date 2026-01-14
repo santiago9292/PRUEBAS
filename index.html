@@ -3,54 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <title>Consulta DNI</title>
-</head>
-<body>
-  <h2>SISTEMA DE PRUEBA</h2>
-  <h2>Consulta por DNI</h2>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<input type="text" id="dni" placeholder="Ingrese DNI">
-<input type="text" id="codigo" placeholder="Ingrese código">
-<button onclick="buscar()">Buscar</button>
-
-  <!-- CAMBIO: pre → div -->
-  <div id="resultado"></div>
-
- <script>
-  function buscar() {
-    const dni = document.getElementById("dni").value.trim();
-    const codigo = document.getElementById("codigo").value.trim();
-
-    if (!dni || !codigo) {
-      document.getElementById("resultado").innerText =
-        "Debe ingresar DNI y código";
-      return;
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
     }
 
-    const url =
-      "https://script.google.com/macros/s/AKfycbxc-QgTTWR-zH2qk3KfbNI6HGD-fzx8SuXgImSYCR3AS5XY2911srX3NTrLvsOd7jCL/exec" +
-      "?dni=" + encodeURIComponent(dni) +
-      "&codigo=" + encodeURIComponent(codigo);
+    .container {
+      max-width: 420px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        const resultado = document.getElementById("resultado");
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-        if (data.error) {
-          resultado.innerText = data.error;
-        } else {
-          resultado.innerHTML =
-            "<p><strong>Nombre:</strong> " + data.nombre + "</p>" +
-            "<p><strong>Apellido:</strong> " + data.apellido + "</p>" +
-            "<p><strong>Empresa:</strong> " + data.empresa + "</p>" +
-            "<p><strong>DESCARGAR:</strong> " +
-            "<a href='" + data.descargar + "' target='_blank'>Descargar</a></p>" +
-            "<p><strong>FOTO:</strong></p>" +
-            "<img src='" + data.foto + "' width='200'>";
-        }
-      });
-  }
-</script>
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #3498db;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #spinner {
+      display: none;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 15px;
+      word-wrap: break-word;
+    }
+
+    #resultado img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    /* Tablet / Desktop */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 500px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>Consulta por DNI</h2>
+
+    <form id="formBusqueda">
+      <input type="text" id="dni" placeholder="Ingrese DNI" autofocus>
+      <input type="text" id="codigo" placeholder="Ingrese Código">
+      <button type="submit" id="btnBuscar">Buscar</button>
+    </form>
+
+    <div id="spinner">
+      <div class="loader"></div>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("formBusqueda");
+    const btnBuscar = document.getElementById("btnBuscar");
+    const spinner = document.getElementById("spinner");
+    const resultado = document.getElementById("resultado");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      buscar();
+    });
+
+    function buscar() {
+      const dni = document.getElementById("dni").value.trim();
+      const codigo = document.getElementById("codigo").value.trim();
+
+      if (!dni || !codigo) {
+        alert("Ingrese DNI y código");
+        return;
+      }
+
+      btnBuscar.disabled = true;
+      spinner.style.display = "block";
+      resultado.innerHTML = "";
+
+      const url = "TU_URL_DE_APPS_SCRIPT"
+        + "?dni=" + encodeURIComponent(dni)
+        + "&codigo=" + encodeURIComponent(codigo);
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            resultado.innerText = data.error;
+          } else {
+            resultado.innerHTML =
+              "<b>Nombre:</b> " + data.nombre + "<br>" +
+              "<b>Apellido:</b> " + data.apellido + "<br>" +
+              "<b>Empresa:</b> " + data.empresa + "<br><br>" +
+              "<b>Descargar:</b> <a href='" + data.descargar + "' target='_blank'>Descargar archivo</a><br><br>" +
+              "<img src='" + data.foto + "'>";
+          }
+        })
+        .catch(() => {
+          resultado.innerText = "Error de conexión";
+        })
+        .finally(() => {
+          spinner.style.display = "none";
+          btnBuscar.disabled = false;
+        });
+    }
+  </script>
+
 </body>
 </html>
-
