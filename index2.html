@@ -34,7 +34,7 @@
 </div>
 
 <script>
-  const URL = "https://script.google.com/macros/s/AKfycbxF3NLK5ATjTPAjI4mIkgYNsNRXM5QCSKJ3NnSLkQ-DTyhDyVvdVytfy0IpxFRl5FHZjw/exec"; // 👈 pega aquí tu endpoint
+  const URL = "https://script.google.com/macros/s/AKfycbx-OHklADt9XpV-HUlSl8r8FU7wUXZU_6bSHUQkLqe2OuSVX2raz3rxiS-klT57YhUnTQ/exec"; // 👈 pega aquí tu endpoint
 
   function enviar() {
     const texto = document.getElementById("datos").value.trim();
@@ -68,4 +68,33 @@ fetch(URL, {
 </script>
 
 </body>
+
+<input type="file" id="archivo" accept=".xlsx,.xls">
+<button onclick="subirExcel()">Subir Excel</button>
+<script>
+function subirExcel() {
+  const fileInput = document.getElementById("archivo");
+  if (!fileInput.files.length) {
+    alert("Seleccione un archivo Excel");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("archivo", fileInput.files[0]);
+  formData.append("codigo", document.getElementById("codigo").value);
+
+  fetch(URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(r => r.json())
+  .then(d => {
+    alert(d.error || `Filas insertadas: ${d.insertadas}`);
+  })
+  .catch(() => alert("Error de conexión"));
+}
+</script>
+
+
+  
 </html>
