@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cargar datos desde Excel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; }
+    .container { max-width:520px; margin:40px auto; background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.1); }
+    textarea { width:100%; min-height:180px; padding:12px; font-size:14px; box-sizing:border-box; }
+    input, button { width:100%; padding:12px; margin-top:10px; font-size:16px; }
+    button { background:#3498db; color:#fff; border:none; border-radius:5px; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    #spinner { display:none; text-align:center; margin-top:10px; }
+    .loader { border:4px solid #f3f3f3; border-top:4px solid #3498db; border-radius:50%; width:28px; height:28px; animation:spin 1s linear infinite; margin:auto; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    #resultado { margin-top:12px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Cargar datos desde Excel</h2>
+
+  <!-- (opcional) código de seguridad -->
+  <input type="text" id="codigo" placeholder="Código de autorización">
+
+  <textarea id="datos" placeholder="Pegue aquí los datos copiados desde Excel"></textarea>
+
+  <button id="btnGuardar" onclick="enviar()">Guardar</button>
+
+  <div id="spinner"><div class="loader"></div></div>
+  <div id="resultado"></div>
+</div>
+
+<script>
+  const URL = "https://script.google.com/macros/s/AKfycbxF3NLK5ATjTPAjI4mIkgYNsNRXM5QCSKJ3NnSLkQ-DTyhDyVvdVytfy0IpxFRl5FHZjw/exec"; // 👈 pega aquí tu endpoint
+
+  function enviar() {
+    const texto = document.getElementById("datos").value.trim();
+    const codigo = document.getElementById("codigo").value.trim();
+    const btn = document.getElementById("btnGuardar");
+    const spinner = document.getElementById("spinner");
+    const resultado = document.getElementById("resultado");
+
+    if (!texto) { alert("Pegue los datos"); return; }
+
+    btn.disabled = true;
+    spinner.style.display = "block";
+    resultado.innerHTML = "";
+
+fetch(URL, {
+  method: "POST",
+  body: JSON.stringify({ texto, codigo })
+})
+
+    .then(r => r.json())
+    .then(d => {
+      if (d.error) resultado.innerText = d.error;
+      else resultado.innerText = `Filas insertadas: ${d.insertadas}`;
+    })
+    .catch(() => resultado.innerText = "Error de conexión")
+    .finally(() => {
+      spinner.style.display = "none";
+      btn.disabled = false;
+    });
+  }
+</script>
+
+</body>
+</html>
