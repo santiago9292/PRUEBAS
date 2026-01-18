@@ -27,7 +27,7 @@ button:disabled { opacity:.6; }
 <body>
 
 <div class="container">
-<h2>VALIDA TU EMO AQUÍv3.1</h2>
+<h2>VALIDA TU EMO AQUÍv3.2</h2>
 
 <form id="formBusqueda">
 <label style="font-size:13px;color:#666;">Ingrese NRO de DNI</label>
@@ -183,15 +183,49 @@ function cargarImagen(url){
 }
 
 function generarQR(texto){
-  return new Promise(resolve=>{
-    try{
-      const d=document.createElement("div");
-      new QRCode(d,{text:texto,width:200,height:200});
-      setTimeout(()=>{const img=d.querySelector("img"); resolve(img?img.src:null);},300);
-    }catch{ resolve(null); }
+  return new Promise(resolve => {
+
+    const d = document.createElement("div");
+    d.style.position = "fixed";
+    d.style.left = "-1000px";
+    d.style.top = "-1000px";
+    document.body.appendChild(d);
+
+    new QRCode(d, {
+      text: texto,
+      width: 200,
+      height: 200,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    const esperar = setInterval(() => {
+      const img = d.querySelector("img");
+      if (img && img.complete && img.naturalWidth > 0) {
+        clearInterval(esperar);
+
+        // Convertimos a base64 real
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+
+        const base64 = canvas.toDataURL("image/png");
+
+        document.body.removeChild(d);
+        resolve(base64);
+      }
+    }, 100);
+
+    // seguridad por si algo falla
+    setTimeout(() => {
+      document.body.removeChild(d);
+      resolve(null);
+    }, 4000);
   });
 }
+
 </script>
 
 </body>
 </html>
+
