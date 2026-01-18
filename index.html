@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -27,7 +27,7 @@ button:disabled { opacity:.6; }
 <body>
 
 <div class="container">
-<h2>VALIDA TU EMO AQUÍv3.3</h2>
+<h2>VALIDA TU EMO AQUÍv3.4</h2>
 
 <form id="formBusqueda">
 <label style="font-size:13px;color:#666;">Ingrese NRO de DNI</label>
@@ -128,13 +128,6 @@ window.generarPDF = async function(datos){
   const logoWatermark = await cargarImagen(LOGO_WATERMARK);
   const baseURL = window.location.origin + window.location.pathname;
   const qr = await generarQR(`${baseURL}?dni=${datos.dni}&fecha=${datos.fecha}`);
-const qr = await generarQR(urlVerificacion);
-
-if (qr) {
-  doc.addImage(qr, "PNG", 150, 55, 40, 40);
-} else {
-  console.warn("No se pudo generar el QR");
-}
 
   if (LOGO_URL) doc.addImage(LOGO_URL,"PNG",13,15,45,16);
   if (logoWatermark) doc.addImage(logoWatermark,"PNG",25,90,160,50);
@@ -190,60 +183,15 @@ function cargarImagen(url){
 }
 
 function generarQR(texto){
-  return new Promise(resolve => {
-
-    const d = document.createElement("div");
-    d.style.position = "fixed";
-    d.style.left = "-1000px";
-    d.style.top = "-1000px";
-    document.body.appendChild(d);
-
-    new QRCode(d, {
-      text: texto,
-      width: 200,
-      height: 200,
-      correctLevel: QRCode.CorrectLevel.H
-    });
-
-    const esperar = setInterval(() => {
-
-      // Caso 1: QR como IMG
-      const img = d.querySelector("img");
-      if (img && img.complete && img.naturalWidth > 0) {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        canvas.getContext("2d").drawImage(img, 0, 0);
-        limpiar(d, esperar);
-        return resolve(canvas.toDataURL("image/png"));
-      }
-
-      // Caso 2: QR como CANVAS
-      const canvasQR = d.querySelector("canvas");
-      if (canvasQR) {
-        limpiar(d, esperar);
-        return resolve(canvasQR.toDataURL("image/png"));
-      }
-
-    }, 100);
-
-    // Seguridad si algo falla
-    setTimeout(() => {
-      limpiar(d, esperar);
-      resolve(null);
-    }, 5000);
+  return new Promise(resolve=>{
+    try{
+      const d=document.createElement("div");
+      new QRCode(d,{text:texto,width:200,height:200});
+      setTimeout(()=>{const img=d.querySelector("img"); resolve(img?img.src:null);},300);
+    }catch{ resolve(null); }
   });
 }
-
-function limpiar(div, intervalo){
-  clearInterval(intervalo);
-  if (div && div.parentNode) div.parentNode.removeChild(div);
-}
-
-
 </script>
 
 </body>
 </html>
-
-
