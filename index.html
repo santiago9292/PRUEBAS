@@ -98,7 +98,7 @@ button:disabled {
 <body>
 
 <div class="container">
-<h2>VALIDA TU EMO AQUÍ v2.7</h2>
+<h2>VALIDA TU EMO AQUÍ v2.71</h2>
 
 <form id="formBusqueda">
     <label for="fecha" style="font-size:13px;color:#666;">
@@ -154,6 +154,15 @@ function buscar() {
   btnBuscar.disabled = true;
   spinner.style.display = "block";
   resultado.innerHTML = "";
+  setTimeout(() => {
+  const btnPDF = document.getElementById("btnPDF");
+  if (btnPDF) {
+    btnPDF.addEventListener("click", () => {
+      generarPDF(data);
+    });
+  }
+}, 0);
+
 
   fetch(URL + "?dni=" + encodeURIComponent(dni) + "&fecha=" + encodeURIComponent(fecha))
     .then(r => r.json())
@@ -183,10 +192,10 @@ function buscar() {
 
         <br>
 
-        <button onclick='generarPDF(${JSON.stringify(data)})'
-          style="width:100%;background:#2ecc71">
-          Descargar esta validación aquí
-        </button>
+        <button id="btnPDF" style="width:100%;background:#2ecc71">
+  Descargar esta validación aquí
+</button>
+
         
       `;
     })
@@ -334,4 +343,5 @@ function generarQR(texto){
 
 </body>
 </html>
+
 
