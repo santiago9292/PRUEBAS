@@ -104,14 +104,29 @@ button:disabled {
   <input type="text" id="dni" placeholder="Ingrese DNI" inputmode="numeric" required autofocus>
   <input type="date" id="fecha" required>
   <button type="submit" id="btnBuscar">Buscar</button>
+
+
 </form>
 
 <div id="spinner"><div class="loader"></div></div>
 <div id="resultado"></div>
+
+<div style="
+  text-align:right;
+  font-size:12px;
+  color:#777;
+  margin-top:14px;
+  font-style:italic;
+">
+  sistema creado por Santiago Pazos
+</div>
+
+</div>
+
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbyhzk4KXfshe1wna2zF-mNEJUsQs370I-ELMQ516TZEJ-APoMIKVeFZG045p4b6NAcWSA/exec";
+const URL = "https://script.google.com/macros/s/AKfycbx1ddte-FxaG2I4pkNQts17ELvVaWUYb3ta9hczxaqe7Rb2n6SxyeozkN4YRZzTTO2eHQ/exec";
 const LOGO_URL = "./logo.png";
 const LOGO_WATERMARK = "./logo_claro.png";
 
@@ -167,6 +182,7 @@ function buscar() {
           style="width:100%;background:#2ecc71">
           Descargar esta validación aquí
         </button>
+        
       `;
     })
     .finally(() => {
@@ -198,6 +214,8 @@ doc.rect(12, 12, 186, 273);       // marco interno
 
   const ahora = new Date().toLocaleString("es-PE");
   const codigo = generarCodigoUnico(datos);
+  await registrarDescarga(datos, codigo);
+
 
   const logoWatermark = await cargarImagen(LOGO_WATERMARK);
   const baseURL = window.location.origin + window.location.pathname;
@@ -273,6 +291,25 @@ function generarCodigoUnico(datos){
   const base = datos.dni + "|" + datos.fecha + "|" + Date.now();
   return btoa(base).replace(/=/g,"").substring(0,14).toUpperCase();
 }
+
+async function registrarDescarga(datos, codigo) {
+
+  const form = new FormData();
+  form.append("accion", "registro_pdf");
+  form.append("dni", datos.dni);
+  form.append("fecha", datos.fecha);
+  form.append("codigo", codigo);
+
+  try {
+    await fetch(URL, {
+      method: "POST",
+      body: form
+    });
+  } catch (e) {
+    console.warn("No se pudo registrar la descarga");
+  }
+}
+
 
 function cargarImagen(url){
   return new Promise(resolve=>{
