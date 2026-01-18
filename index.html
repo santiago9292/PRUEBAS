@@ -1,181 +1,293 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Validación EMO</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Validación EMO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    .container {
-      max-width: 420px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f4f6f8;
+  margin:0;
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+.container {
+  max-width:420px;
+  margin:40px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:10px;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);
+}
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+h2 {
+  text-align:center;
+  margin-bottom:20px;
+}
 
-    input {
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      width: 100%;
-      box-sizing: border-box;
-    }
+form {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
 
-    button {
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      background: #3498db;
-      color: #fff;
-      cursor: pointer;
-    }
+input, button {
+  padding: 10px 12px;
+  font-size:16px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  width:100%;
+  box-sizing:border-box;
+}
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+input {
+  height:46px;
+  line-height:46px;
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  background:#fff;
+}
 
-    #spinner {
-      display: none;
-      margin: 20px auto;
-      text-align: center;
-    }
+input[type="date"] {
+  padding-right:10px;
+}
 
-    .loader {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin: auto;
-    }
+button {
+  background:#3498db;
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+button:disabled {
+  opacity:.6;
+}
 
-    #resultado {
-      margin-top: 20px;
-      font-size: 15px;
-      word-wrap: break-word;
-    }
+#spinner {
+  display:none;
+  text-align:center;
+  margin:20px;
+}
 
-    .item {
-      margin-bottom: 8px;
-    }
+.loader {
+  border:4px solid #f3f3f3;
+  border-top:4px solid #3498db;
+  border-radius:50%;
+  width:30px;
+  height:30px;
+  animation:spin 1s linear infinite;
+  margin:auto;
+}
 
-    /* Tablet / Desktop */
-    @media (min-width: 768px) {
-      .container {
-        max-width: 500px;
-      }
-    }
-  </style>
+@keyframes spin { to { transform:rotate(360deg); } }
+
+#resultado {
+  margin-top:20px;
+  font-size:15px;
+}
+
+.item { margin-bottom:8px; }
+</style>
 </head>
 
 <body>
 
-  <div class="container">
-    <h2>VALIDA TU EMO AQUÍ v2</h2>
+<div class="container">
+<h2>VALIDA TU EMO AQUÍ</h2>
 
-    <form id="formBusqueda">
-      <input type="text" id="dni" placeholder="Ingrese DNI" inputmode="numeric" autofocus required>
-      <input type="date" id="fecha" required>
-      <button type="submit" id="btnBuscar">Buscar</button>
-    </form>
+<form id="formBusqueda">
+  <input type="text" id="dni" placeholder="Ingrese DNI" inputmode="numeric" required autofocus>
+  <input type="date" id="fecha" required>
+  <button type="submit" id="btnBuscar">Buscar</button>
+</form>
 
-    <div id="spinner">
-      <div class="loader"></div>
-    </div>
+<div id="spinner"><div class="loader"></div></div>
+<div id="resultado"></div>
+</div>
 
-    <div id="resultado"></div>
-  </div>
+<script>
+const URL = "https://script.google.com/macros/s/AKfycbyhzk4KXfshe1wna2zF-mNEJUsQs370I-ELMQ516TZEJ-APoMIKVeFZG045p4b6NAcWSA/exec";
+const LOGO_URL = "./logo.png";
+const LOGO_WATERMARK = "./logo_claro.png";
 
-  <script>
-    const form = document.getElementById("formBusqueda")
-    const btnBuscar = document.getElementById("btnBuscar")
-    const spinner = document.getElementById("spinner")
-    const resultado = document.getElementById("resultado")
+const form = document.getElementById("formBusqueda");
+const btnBuscar = document.getElementById("btnBuscar");
+const spinner = document.getElementById("spinner");
+const resultado = document.getElementById("resultado");
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault()
-      buscar()
-    })
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  buscar();
+});
 
-    function buscar() {
-      const dni = document.getElementById("dni").value.trim()
-      const fecha = document.getElementById("fecha").value
+function buscar() {
 
-      if (!dni || !fecha) {
-        alert("Ingrese DNI y fecha")
-        return
+  const dni = document.getElementById("dni").value.trim();
+  const fecha = document.getElementById("fecha").value;
+  if (!dni || !fecha) return alert("Ingrese DNI y fecha");
+
+  btnBuscar.disabled = true;
+  spinner.style.display = "block";
+  resultado.innerHTML = "";
+
+  fetch(URL + "?dni=" + encodeURIComponent(dni) + "&fecha=" + encodeURIComponent(fecha))
+    .then(r => r.json())
+    .then(data => {
+
+      if (data.error) {
+        resultado.innerHTML = "<b style='color:red'>" + data.error + "</b>";
+        return;
       }
 
-      btnBuscar.disabled = true
-      spinner.style.display = "block"
-      resultado.innerHTML = ""
+      const ahora = new Date().toLocaleString("es-PE");
 
-      const url = "https://script.google.com/macros/s/AKfycbz-DRls7vMV7MjkDllGjpKs62_DW6MBV3R3ey0ueNjxNts8aueyudb3ZiT9AMiBIkcRLQ/exec"
-        + "?dni=" + encodeURIComponent(dni)
-        + "&fecha=" + encodeURIComponent(fecha)
+      resultado.innerHTML = `
+        <div class="item"><b>Apellidos y nombres:</b> ${data.nombres}</div>
+        <div class="item"><b>DNI:</b> ${data.dni}</div>
+        <div class="item"><b>Fecha:</b> ${data.fecha}</div>
+        <div class="item"><b>Empresa:</b> ${data.empresa}</div>
+        <div class="item"><b>Tipo de EMO:</b> ${data.tipoEMO}</div>
+        <div class="item"><b>Criterio de aptitud:</b> ${data.criterioAptitud}</div>
 
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            resultado.innerHTML = "<b style='color:red'>" + data.error + "</b>"
-          } else {
-            resultado.innerHTML = `
-              <div class="item"><b>Apellidos y nombres:</b> ${data.nombres}</div>
-              <div class="item"><b>DNI:</b> ${data.dni}</div>
-              <div class="item"><b>Fecha:</b> ${data.fecha}</div>
-              <div class="item"><b>Empresa:</b> ${data.empresa}</div>
-              <div class="item"><b>Tipo de EMO:</b> ${data.tipoEMO}</div>
-              <div class="item"><b>Criterio de aptitud:</b> ${data.criterioAptitud}</div>
-            `
-          }
-        })
-        .catch(() => {
-          resultado.innerHTML = "<b style='color:red'>Error de conexión</b>"
-        })
-        .finally(() => {
-          spinner.style.display = "none"
-          btnBuscar.disabled = false
-        })
+        <hr>
+
+        <div style="font-size:13px;color:#555">
+          <b>Consulta realizada:</b> ${ahora}<br>
+          Validado en prevemedicaperu.com/validar
+        </div>
+
+        <br>
+
+        <button onclick='generarPDF(${JSON.stringify(data)})'
+          style="width:100%;background:#2ecc71">
+          Descargar esta validación aquí
+        </button>
+      `;
+    })
+    .finally(() => {
+      spinner.style.display = "none";
+      btnBuscar.disabled = false;
+    });
+}
+</script>
+
+<script>
+// ===============================
+// PDF PROFESIONAL (ESTABLE)
+// ===============================
+window.generarPDF = async function(datos){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const ahora = new Date().toLocaleString("es-PE");
+  const codigo = generarCodigoUnico(datos);
+
+  const logoWatermark = await cargarImagen(LOGO_WATERMARK);
+  const urlVerificacion = `https://prevemedicaperu.com/validar?dni=${datos.dni}&fecha=${datos.fecha}`;
+  const qr = await generarQR(urlVerificacion);
+
+  // ===============================
+  // LOGO SUPERIOR IZQUIERDA
+  // ===============================
+  if (LOGO_URL) {
+  doc.addImage(LOGO_URL, "PNG", 12, 8, 45, 16);
+}
+
+
+// ===============================
+// SELLO DE AGUA (LOGO CLARO)
+// ===============================
+if (logoWatermark) {
+  doc.addImage(logoWatermark, "PNG", 25, 90, 160, 50);
+}
+
+  // ===============================
+  // TITULO
+  // ===============================
+  doc.setFont("Helvetica","bold");
+  doc.setFontSize(15);
+  doc.text("CONSTANCIA DE VALIDACIÓN EMO", 105, 35, { align:"center" });
+
+  let y = 50;
+  doc.setFontSize(11);
+  doc.setFont("Helvetica","normal");
+
+  doc.text("Apellidos y nombres: " + datos.nombres, 20, y); y+=8;
+  doc.text("DNI: " + datos.dni, 20, y); y+=8;
+  doc.text("Fecha EMO: " + datos.fecha, 20, y); y+=8;
+  doc.text("Empresa: " + datos.empresa, 20, y); y+=8;
+  doc.text("Tipo EMO: " + datos.tipoEMO, 20, y); y+=8;
+  doc.text("Criterio de aptitud: " + datos.criterioAptitud, 20, y); y+=12;
+
+  doc.setFont("Helvetica","bold");
+  doc.text("Código único de validación:", 20, y); y+=7;
+
+  doc.setFontSize(10);
+  doc.text(codigo, 20, y); y+=12;
+
+  doc.setFont("Helvetica","italic");
+  doc.text("Consulta realizada: " + ahora, 20, y); y+=7;
+  doc.text("Validado en prevemedicaperu.com/validar", 20, y);
+
+  // ===============================
+  // QR VERIFICABLE
+  // ===============================
+  doc.addImage(qr, "PNG", 150, 55, 40, 40);
+  doc.setFontSize(9);
+  doc.text("Escanee para verificar autenticidad", 170, 100, {align:"center"});
+
+  // ===============================
+  // PIE
+  // ===============================
+  doc.setFontSize(9);
+  doc.text(
+    "Documento generado automáticamente. Verificable desde el sitio oficial.",
+    105, 285, { align:"center" }
+  );
+
+  doc.save("validacion_" + datos.dni + ".pdf");
+}
+
+// ===============================
+// UTILIDADES
+// ===============================
+function generarCodigoUnico(datos){
+  const base = datos.dni + "|" + datos.fecha + "|" + Date.now();
+  return btoa(base).replace(/=/g,"").substring(0,14).toUpperCase();
+}
+
+function cargarImagen(url){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>{
+      const c=document.createElement("canvas");
+      c.width=img.width; c.height=img.height;
+      c.getContext("2d").drawImage(img,0,0);
+      resolve(c.toDataURL("image/png"));
     }
-  </script>
+    img.onerror = ()=>resolve(null);
+    img.src=url;
+  });
+}
+
+function generarQR(texto){
+  return new Promise(resolve=>{
+    const d=document.createElement("div");
+    new QRCode(d,{text:texto,width:200,height:200});
+    setTimeout(()=>resolve(d.querySelector("img").src),300);
+  });
+}
+</script>
+
+
+
 
 </body>
 </html>
-
-
-
-
-
-
-
-
