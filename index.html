@@ -98,7 +98,7 @@ button:disabled {
 <body>
 
 <div class="container">
-<h2>VALIDA TU EMO AQUÍ v2.71</h2>
+<h2>VALIDA TU EMO AQUÍ v2.72</h2>
 
 <form id="formBusqueda">
     <label for="fecha" style="font-size:13px;color:#666;">
@@ -284,7 +284,10 @@ if (LOGO_WATERMARK_BASE64) {
   // ===============================
   // QR VERIFICABLE
   // ===============================
+  if (qr) {
   doc.addImage(qr, "PNG", 150, 55, 40, 40);
+}
+
   doc.setFontSize(9);
   doc.text("Escanee para verificar autenticidad", 170, 100, {align:"center"});
 
@@ -331,11 +334,27 @@ async function registrarDescarga(datos, codigo) {
 
 function generarQR(texto){
   return new Promise(resolve=>{
-    const d=document.createElement("div");
-    new QRCode(d,{text:texto,width:200,height:200});
-    setTimeout(()=>resolve(d.querySelector("img").src),300);
+    try {
+      const d = document.createElement("div");
+      const qr = new QRCode(d, {
+        text: texto,
+        width: 200,
+        height: 200
+      });
+
+      setTimeout(() => {
+        const img = d.querySelector("img");
+        if (img && img.src) resolve(img.src);
+        else resolve(null);
+      }, 300);
+
+    } catch(e){
+      console.warn("QR no generado");
+      resolve(null);
+    }
   });
 }
+
 </script>
 
 
@@ -343,5 +362,6 @@ function generarQR(texto){
 
 </body>
 </html>
+
 
 
