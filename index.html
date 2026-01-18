@@ -101,12 +101,18 @@ button:disabled {
 <h2>VALIDA TU EMO AQUÍ</h2>
 
 <form id="formBusqueda">
-  <input type="text" id="dni" placeholder="Ingrese DNI" inputmode="numeric" required autofocus>
-  <input type="date" id="fecha" required>
+    <label for="fecha" style="font-size:13px;color:#666;">
+    Ingrese NRO de DNI
+  </label>
+  <input type="text" id="dni" placeholder="12345678" inputmode="numeric" required autofocus>
+
+  <label for="fecha" style="font-size:13px;color:#666;">
+    Seleccione la fecha del EMO
+  </label>
+  <input type="date" id="fecha" required max="<?=new Date().toISOString().split('T')[0]?>">
   <button type="submit" id="btnBuscar">Buscar</button>
-
-
 </form>
+
 
 <div id="spinner"><div class="loader"></div></div>
 <div id="resultado"></div>
