@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -27,7 +27,7 @@ button:disabled { opacity:.6; }
 <body>
 
 <div class="container">
-<h2>VALIDA TU EMO AQUÍ v3.5</h2>
+<h2>VALIDA TU EMO AQUÍ v4.1</h2>
 
 <form id="formBusqueda">
 <label style="font-size:13px;color:#666;">Ingrese NRO de DNI</label>
@@ -152,6 +152,21 @@ window.generarPDF = async function(datos){
   doc.text("Consulta realizada: "+ahora,20,y); y+=7;
   doc.text("Validado en prevemedicaperu.com/validar",20,y);
 
+  doc.setFontSize(9);
+doc.setFont("Helvetica", "normal");
+doc.text(
+  "Documento generado automáticamente. Verificable desde el sitio oficial.",
+  105, 258, { align: "center" }
+);
+
+doc.setFontSize(8);
+doc.setFont("Helvetica", "italic");
+doc.text(
+  "Sistema desarrollado por Santiago Pazos",
+  105, 264, { align: "center" }
+);
+
+
   if (qr) doc.addImage(qr,"PNG",150,55,40,40);
 
   const blob = doc.output("bloburl");
@@ -237,3 +252,4 @@ function limpiarQR(div, intervalo){
 
 </body>
 </html>
+
