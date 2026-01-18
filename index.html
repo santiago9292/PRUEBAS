@@ -233,19 +233,8 @@ doc.setGState(new doc.GState({opacity:1}));
   
   const qr = await generarQR(urlVerificacion);
 
-  // ===============================
-  // LOGO SUPERIOR IZQUIERDA
-  // ===============================
-  if (LOGO_URL) {
-  doc.addImage(LOGO_URL, "PNG", 13, 15, 45, 16);
-}
 
-// ===============================
-// SELLO DE AGUA (LOGO CLARO)
-// ===============================
-if (logoWatermark) {
-  doc.addImage(logoWatermark, "PNG", 25, 90, 160, 50);
-}
+
 
   // ===============================
   // TITULO
@@ -350,4 +339,5 @@ function generarQR(texto){
 
 </body>
 </html>
+
 
